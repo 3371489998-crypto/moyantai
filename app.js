@@ -53,8 +53,9 @@ const Store = {
             editorMaxWidth: 1100,
             glassEnabled: true,
             aiProvider: 'openai',
+            aiProviderType: 'openai',
             aiApiKey: '',
-            aiBaseUrl: 'https://api.openai.com',
+            aiBaseUrl: '',
             aiModel: 'gpt-4o',
             chapterListOrder: 'asc'
         };
@@ -602,6 +603,9 @@ const App = {
                     'setting-model': 'aiModel'
                 };
                 Store.updateSettings(keyMap[id], e.target.value);
+                if (id === 'setting-provider') {
+                    this._onProviderChange(e.target.value);
+                }
             });
         });
     },
@@ -687,19 +691,80 @@ const App = {
         resultArea.classList.remove('hidden');
         document.getElementById('ai-prompt-area').classList.add('hidden');
         
-        if (Bridge.isTauri()) {
-            const result = await Bridge.invoke('ai_generate', {
-                book_id: this.currentBookId,
-                chapter_id: this.currentChapterId,
-                prompt: prompt,
-                action: 'continue'
-            });
-            resultText.textContent = result || '生成失败';
-        } else {
-            setTimeout(() => {
-                resultText.textContent = '【AI 功能待接入后端服务】\n\n提示词：' + prompt;
-            }, 500);
+        try {
+            let aiText = '';
+            if (Bridge.isTauri()) {
+                aiText = await Bridge.invoke('ai_generate', {
+                    book_id: this.currentBookId,
+                    chapter_id: this.currentChapterId,
+                    prompt: prompt,
+                    action: 'continue'
+                }) || '生成失败';
+            } else {
+                aiText = await this._callAIFromBrowser(prompt);
+            }
+            resultText.textContent = aiText;
+        } catch (e) {
+            resultText.textContent = '生成失败：' + e.message;
         }
+    },
+    
+    async _callAIFromBrowser(prompt) {
+        const s = Store.settings;
+        const apiKey = s.aiApiKey;
+        const baseUrl = (s.aiBaseUrl || 'https://api.openai.com').replace(/\/$/, '');
+        const model = s.aiModel || 'gpt-4o';
+        
+        if (!apiKey) {
+            return '请先在设置中配置 AI API Key。';
+        }
+        
+        // Build context from current chapter
+        const editor = document.getElementById('editor');
+        const currentContent = editor.value || '';
+        const systemPrompt = '你是专业的小说创作助手。请根据用户提供的现有内容和提示词，续写一段符合风格和语境的剧情。保持叙事连贯，人物性格一致，文笔流畅。';
+        const userPrompt = `当前章节内容：\n${currentContent.slice(-3000)}\n\n用户要求：${prompt}`;
+        
+        const resp = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                max_tokens: 1024,
+                temperature: 0.8
+            })
+        });
+        
+        if (!resp.ok) {
+            const errText = await resp.text();
+            throw new Error(`API ${resp.status}: ${errText.slice(0, 200)}`);
+        }
+        
+        const data = await resp.json();
+        return data.choices?.[0]?.message?.content || 'AI 未返回有效内容';
+    },
+    
+    _onProviderChange(provider) {
+        const presets = {
+            openai:   { baseUrl: '', model: 'gpt-4o' },
+            deepseek: { baseUrl: 'https://api.deepseek.com', model: 'deepseek-chat' },
+            zhipu:    { baseUrl: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4-flash' },
+            moonshot: { baseUrl: 'https://api.moonshot.cn/v1', model: 'moonshot-v1-8k' },
+            stepfun:  { baseUrl: 'https://api.stepfun.com/v1', model: 'step-2-16k' },
+            google:   { baseUrl: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash' }
+        };
+        const p = presets[provider] || presets.openai;
+        Store.updateSettings('aiBaseUrl', p.baseUrl);
+        Store.updateSettings('aiModel', p.model);
+        document.getElementById('setting-baseurl').value = p.baseUrl;
+        document.getElementById('setting-model').value = p.model;
     },
     
     applyAIResult() {
