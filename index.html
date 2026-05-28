@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨砚台 - AI 小说创作</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 侧边栏 -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="app-title">墨砚台</h1>
+                <button id="toggle-sidebar" class="icon-btn" title="收起侧边栏">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button id="nav-create" class="nav-item active" data-page="create">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span>新建作品</span>
+                </button>
+                <button id="nav-open" class="nav-item" data-page="open">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <span>打开作品</span>
+                </button>
+                <button id="nav-workspace" class="nav-item" data-page="workspace">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                    </svg>
+                    <span>工作区</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="btn-settings" class="icon-btn" title="设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- 主内容区 -->
+        <main id="main-content" class="main-content">
+            <!-- 页面：新建作品 -->
+            <section id="page-create" class="page active">
+                <div class="page-header">
+                    <h2>新建作品</h2>
+                    <p class="page-desc">创建一个新的小说项目</p>
+                </div>
+                <form id="form-create" class="form-card">
+                    <div class="form-group">
+                        <label for="book-title">作品名称</label>
+                        <input type="text" id="book-title" placeholder="输入作品名称..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-genre">题材类型</label>
+                        <select id="book-genre">
+                            <option value="xuanhuan">玄幻</option>
+                            <option value="qihuan">奇幻</option>
+                            <option value="wuxia">武侠</option>
+                            <option value="xianxia">仙侠</option>
+                            <option value="dushi">都市</option>
+                            <option value="lishi">历史</option>
+                            <option value="junshi">军事</option>
+                            <option value="kehuan">科幻</option>
+                            <option value="lingyi">灵异</option>
+                            <option value="youxi">游戏</option>
+                            <option value="jingji">竞技</option>
+                            <option value="tongren">同人</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="book-desc">作品简介</label>
+                        <textarea id="book-desc" rows="4" placeholder="简短描述你的作品..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-create-cancel">取消</button>
+                        <button type="submit" class="btn btn-primary">创建作品</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- 页面：打开作品 -->
+            <section id="page-open" class="page">
+                <div class="page-header">
+                    <h2>打开作品</h2>
+                    <p class="page-desc">选择已有作品继续创作</p>
+                </div>
+                <div id="book-list" class="book-grid">
+                    <!-- 动态填充 -->
+                </div>
+                <div id="no-books" class="empty-state hidden">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                    </svg>
+                    <p>暂无作品，点击「新建作品」开始创作</p>
+                </div>
+            </section>
+            
+            <!-- 页面：工作区 -->
+            <section id="page-workspace" class="page">
+                <div class="workspace-layout">
+                    <!-- 左侧：章节列表 -->
+                    <div id="chapter-panel" class="chapter-panel">
+                        <div class="panel-header">
+                            <h3>章节</h3>
+                            <button id="btn-add-chapter" class="icon-btn" title="新建章节">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="chapter-list" class="chapter-list">
+                            <!-- 动态填充 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧：编辑器 -->
+                    <div class="editor-area">
+                        <div class="editor-toolbar">
+                            <div class="toolbar-left">
+                                <span id="editor-book-title" class="editor-title">未命名作品</span>
+                                <span id="editor-chapter-title" class="chapter-indicator">-</span>
+                            </div>
+                            <div class="toolbar-right">
+                                <button id="btn-ai-continue" class="btn btn-ai" title="AI 续写">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a10 10 0 0110 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/>
+                                        <path d="M12 8v4l3 3"/>
+                                    </svg>
+                                    <span>AI 续写</span>
+                                </button>
+                                <button id="btn-save-chapter" class="btn btn-secondary" title="保存">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                                        <polyline points="17,21 17,13 7,13 7,21"/>
+                                        <polyline points="7,3 7,8 15,8"/>
+                                    </svg>
+                                    <span>保存</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="editor-wrapper">
+                            <textarea id="editor" class="editor" placeholder="开始写作...&#10;&#10;支持 AI 续写、智能润色等功能"></textarea>
+                        </div>
+                        <div class="editor-statusbar">
+                            <span id="status-words">字数：0</span>
+                            <span id="status-saved">未保存</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 设置面板（overlay） -->
+    <div id="settings-overlay" class="overlay hidden">
+        <div class="overlay-panel settings-panel">
+            <div class="overlay-header">
+                <h3>设置</h3>
+                <button id="btn-close-settings" class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>外观</h4>
+                    <div class="setting-item">
+                        <label>编辑器字体大小</label>
+                        <input type="range" id="setting-font-size" min="12" max="24" value="16" class="range-input">
+                        <span id="font-size-value">16px</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>行间距</label>
+                        <input type="range" id="setting-line-height" min="1.4" max="2.4" step="0.1" value="1.8" class="range-input">
+                        <span id="line-height-value">1.8</span>
+                    </div>
+                    <div class="setting-item">
+                        <label>主题</label>
+                        <select id="setting-theme">
+                            <option value="parchment">羊皮纸</option>
+                            <option value="midnight">午夜</option>
+                            <option value="forest">森林</option>
+                            <option value="ocean">海洋</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h4>AI 配置</h4>
+                    <div class="setting-item">
+                        <label>API 提供商</label>
+                        <select id="setting-provider">
+                            <option value="openai">OpenAI</option>
+                            <option value="sensenova">SenseNova</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label>API Key</label>
+                        <input type="password" id="setting-apikey" placeholder="输入 API Key...">
+                    </div>
+                    <div class="setting-item">
+                        <label>Base URL</label>
+                        <input type="text" id="setting-baseurl" placeholder="https://api.openai.com">
+                    </div>
+                    <div class="setting-item">
+                        <label>模型</label>
+                        <input type="text" id="setting-model" placeholder="gpt-4o">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 弹窗 -->
+    <div id="ai-overlay" class="overlay hidden">
+        <div class="overlay-panel ai-panel">
+            <div class="overlay-header">
+                <h3>AI 助手</h3>
+                <button id="btn-close-ai" class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="ai-content">
+                <div class="ai-tabs">
+                    <button class="ai-tab active" data-action="continue">续写</button>
+                    <button class="ai-tab" data-action="polish">润色</button>
+                    <button class="ai-tab" data-action="outline">大纲</button>
+                </div>
+                <div id="ai-prompt-area" class="ai-prompt-area">
+                    <textarea id="ai-prompt" rows="4" placeholder="描述你想要的剧情走向..."></textarea>
+                    <button id="btn-ai-generate" class="btn btn-primary">生成</button>
+                </div>
+                <div id="ai-result" class="ai-result hidden">
+                    <div class="ai-result-text"></div>
+                    <div class="ai-result-actions">
+                        <button class="btn btn-secondary" id="btn-ai-discard">丢弃</button>
+                        <button class="btn btn-primary" id="btn-ai-apply">采用</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
